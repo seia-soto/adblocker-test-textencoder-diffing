@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+[[ "$DEBUG" != "" ]] && set -x
+
 function download_trackerdb() {
   echo "Downloading trackerdb..."
   curl -sL 'https://github.com/ghostery/trackerdb/releases/latest/download/trackerdb.json' > ./trackerdb.json
@@ -19,10 +21,11 @@ function use_adblocker_from_npm() {
 }
 
 function use_adblocker_from_git_branch() {
-  local BRANCH="$0"
+  local BRANCH="$1"
   [[ ! -d ./adblocker ]] && git clone 'https://github.com/seia-soto/adblocker.git'
   cd ./adblocker
-  [[ "$(git rev-parse --abbrev-ref HEAD)" != "$BRANCH" || ! -d ./adblocker/packages/adblocker/dist ]] && yarn install && yarn build
+  git pull
+  [[ "$(git rev-parse --abbrev-ref HEAD)" != "$BRANCH" || ! -d ./packages/adblocker/dist ]] && git switch "$BRANCH" && yarn install && yarn build
   cd ..
   pnpm link ./adblocker/packages/adblocker
 }
